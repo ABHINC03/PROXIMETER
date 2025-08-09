@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProxiMeter - Fun Distance Tracker</title>
+    <style>
+        :root {
+            --primary: #4e54c8;
+            --secondary: #8f94fb;
+            --accent: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .distance-display {
+            text-align: center;
+            font-size: 2rem;
+            margin: 20px 0;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .friend-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .friend-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .unit-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        #map {
+            height: 300px;
+            border-radius: 15px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .user-info-bar {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn.small {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        
+        .friend-result {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #search-results-container {
+            margin-top: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ProxiMeter</h1>
+        
+        <!-- Authentication Section -->
+        <div class="card" id="auth-section">
+            <h2>Get Started</h2>
+            <div class="form-group">
+                <label for="displayName">Display Name</label>
+                <input type="text" id="displayName" placeholder="Enter your name">
+            </div>
+            <button class="btn" id="signup-btn">Create Account</button>
+            <div id="user-info" class="hidden">
+                <p>Your User ID: <strong id="user-id"></strong></p>
+                <p>Share this ID with friends to connect!</p>
+            </div>
+        </div>
+        
+        <!-- Main App Section -->
+        <div class="card hidden" id="app-section">
+            <div class="user-info-bar">
+                <span>User: <strong id="current-user-name"></strong></span>
+                <span>ID: <strong id="current-user-id"></strong></span>
+                <button class="btn small" id="copy-user-id">Copy ID</button>
+                <button class="btn small" id="logout-btn">Logout</button>
+            </div>
+            
+            <h2>Your Location</h2>
+            <button class="btn" id="update-location">Update My Location</button>
+            <p id="location-status">Location not updated yet</p>
+            
+            <div class="form-group">
+                <label for="friend-select">Add Friend</label>
+                <div style="display: flex;">
+                    <select id="friend-select" style="flex: 1; margin-right: 10px;">
+                        <option value="">Select a friend</option>
+                    </select>
+                    <button class="btn" id="search-friend-btn">Search</button>
+                </div>
+                <div id="friend-search-results" class="hidden">
+                    <input type="text" id="friend-search" placeholder="Enter friend's User ID or name">
+                    <div id="search-results-container" class="hidden">
+                        <h4>Search Results:</h4>
+                        <div id="friend-search-results-list"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="unit-select">Distance Unit</label>
+                <select id="unit-select">
+                    <option value="">Random Fun Unit</option>
+                    <option value="bananas">Bananas</option>
+                    <option value="football fields">Football Fields</option>
+                    <option value="blue whales">Blue Whales</option>
+                    <option value="eiffel towers">Eiffel Towers</option>
+                </select>
+                <button class="btn" id="get-distances">Show Distances</button>
+            </div>
+            
+            <h2>Your Friends</h2>
+            <div class="friend-list" id="friend-list">
+                <!-- Friend cards will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentUser = null;
+        
+        // DOM Elements
+        const authSection = document.getElementById('auth-section');
+        const appSection = document.getElementById('app-section');
+        const signupBtn = document.getElementById('signup-btn');
+        const userIdDisplay = document.getElementById('user-id');
+        const userInfo = document.getElementById('user-info');
+        const updateLocationBtn = document.getElementById('update-location');
+        const locationStatus = document.getElementById('location-status');
+        const getDistancesBtn = document.getElementById('get-distances');
+        const friendList = document.getElementById('friend-list');
+        const currentUserName = document.getElementById('current-user-name');
+        const currentUserId = document.getElementById('current-user-id');
+        const copyUserIdBtn = document.getElementById('copy-user-id');
+        const logoutBtn = document.getElementById('logout-btn');
+        const friendSelect = document.getElementById('friend-select');
+        const searchFriendBtn = document.getElementById('search-friend-btn');
+        const friendSearchResults = document.getElementById('friend-search-results');
+        const friendSearch = document.getElementById('friend-search');
+        const searchResultsContainer = document.getElementById('search-results-container');
+        const searchResultsList = document.getElementById('friend-search-results-list');
+        
+        // Initialize app
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                authSection.classList.add('hidden');
+                appSection.classList.remove('hidden');
+                currentUserName.textContent = currentUser.name;
+                currentUserId.textContent = currentUser.id;
+                loadFriends();
+            }
+        });
+        
+        // Sign up new user
+        signupBtn.addEventListener('click', async () => {
+            const displayName = document.getElementById('displayName').value || 'Anonymous';
+            
+            const response = await fetch('/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ displayName })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                currentUser = {
+                    id: data.user_id,
+                    name: data.displayName
+                };
+                
+                // Save to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                userIdDisplay.textContent = currentUser.id;
+                userInfo.classList.remove('hidden');
+                signupBtn.textContent = 'Account Created';
+                currentUserName.textContent = data.displayName;
+                
+                setTimeout(() => {
+                    authSection.classList.add('hidden');
+                    appSection.classList.remove('hidden');
+                    currentUserName.textContent = currentUser.name;
+                    currentUserId.textContent = currentUser.id;
+                    loadFriends();
+                }, 1000);
+            } else {
+                alert('Error creating account');
+            }
+        });
+        
+        // Update location
+        updateLocationBtn.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                locationStatus.textContent = "Geolocation is not supported by your browser";
+                return;
+            }
+            
+            locationStatus.textContent = "Locating...";
+            
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    
+                    const response = await fetch('/update-location', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: currentUser.id,
+                            lat: latitude,
+                            lon: longitude
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        locationStatus.textContent = `Location updated: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                    } else {
+                        const error = await response.json();
+                        locationStatus.textContent = `Error: ${error.error || 'Failed to update location'}`;
+                    }
+                },
+                (error) => {
+                    locationStatus.textContent = `Error: ${error.message}`;
+                }
+            );
+        });
+        
+        // Copy user ID
+        copyUserIdBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(currentUser.id).then(() => {
+                alert('Copied to clipboard!');
+            });
+        });
+        
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('currentUser');
+            location.reload();
+        });
+        
+        // Toggle friend search
+        searchFriendBtn.addEventListener('click', () => {
+            friendSearchResults.classList.toggle('hidden');
+            searchResultsContainer.classList.add('hidden');
+        });
+        
+        // Friend search
+        let searchTimeout;
+        friendSearch.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            const searchTerm = friendSearch.value.trim();
+            
+            if (searchTerm.length < 3) {
+                searchResultsContainer.classList.add('hidden');
+                return;
+            }
+            
+            searchTimeout = setTimeout(async () => {
+                const response = await fetch(`/search-users?q=${searchTerm}`);
+                if (response.ok) {
+                    const results = await response.json();
+                    renderSearchResults(results);
+                }
+            }, 300);
+        });
+        
+        // Load friends for dropdown
+        async function loadFriends() {
+            const response = await fetch(`/get-friends?user_id=${currentUser.id}`);
+            if (response.ok) {
+                const friends = await response.json();
+                
+                // Clear existing options
+                friendSelect.innerHTML = '<option value="">Select a friend</option>';
+                
+                // Add friends to dropdown
+                friends.forEach(friend => {
+                    const option = document.createElement('option');
+                    option.value = friend.id;
+                    option.textContent = friend.display_name || friend.id;
+                    friendSelect.appendChild(option);
+                });
+            }
+        }
+        
+        // Add friend from dropdown
+        friendSelect.addEventListener('change', () => {
+            const friendId = friendSelect.value;
+            if (friendId) {
+                addFriend(friendId);
+                friendSelect.value = "";
+            }
+        });
+        
+        // Add friend from search results
+        function renderSearchResults(users) {
+            searchResultsList.innerHTML = '';
+            
+            if (users.length === 0) {
+                searchResultsList.innerHTML = '<p>No users found</p>';
+                searchResultsContainer.classList.remove('hidden');
+                return;
+            }
+            
+            users.forEach(user => {
+                const userEl = document.createElement('div');
+                userEl.className = 'friend-result';
+                userEl.innerHTML = `
+                    <strong>${user.display_name || 'Anonymous'}</strong>
+                    <span>${user.id}</span>
+                    <button class="btn small add-friend-btn" data-id="${user.id}">Add</button>
+                `;
+                searchResultsList.appendChild(userEl);
+            });
+            
+            // Add event listeners to add buttons
+            document.querySelectorAll('.add-friend-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const friendId = btn.dataset.id;
+                    addFriend(friendId);
+                    searchResultsContainer.classList.add('hidden');
+                });
+            });
+            
+            searchResultsContainer.classList.remove('hidden');
+        }
+        
+        // Add friend function
+        async function addFriend(friendId) {
+            const response = await fetch('/add-friend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: currentUser.id,
+                    friend_id: friendId
+                })
+            });
+            
+            if (response.ok) {
+                alert('Friend added successfully!');
+                await loadFriends();
+                friendSearch.value = '';
+                searchResultsContainer.classList.add('hidden');
+            } else {
+                alert('Error adding friend');
+            }
+        }
+        
+        // Get distances
+        getDistancesBtn.addEventListener('click', async () => {
+            const unit = document.getElementById('unit-select').value;
+            const url = `/proximity?user_id=${currentUser.id}${unit ? `&unit=${unit}` : ''}`;
+            
+            const response = await fetch(url);
+            if (response.ok) {
+                const friends = await response.json();
+                renderFriends(friends);
+            } else {
+                alert('Error getting distances');
+            }
+        });
+        
+        // Render friends list
+        function renderFriends(friends) {
+            friendList.innerHTML = '';
+            
+            if (friends.length === 0) {
+                friendList.innerHTML = '<p>No friends added yet</p>';
+                return;
+            }
+            
+            friends.forEach(friend => {
+                const friendCard = document.createElement('div');
+                friendCard.className = 'friend-card';
+                
+                friendCard.innerHTML = `
+                    <h3>${friend.display_name}</h3>
+                    <div class="distance-display">
+                        ${friend.distance.toFixed(2)}
+                        <span class="unit-badge">${friend.unit}</span>
+                    </div>
+                    <p>ID: ${friend.friend_id}</p>
+                `;
+                
+                friendList.appendChild(friendCard);
+            });
+        }
+    </script>
+</body>
+</html>
+
