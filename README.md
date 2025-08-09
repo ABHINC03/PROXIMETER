@@ -42,7 +42,7 @@ For Software:
 [commands]
 
 # Run
-[commands]
+app.py
 
 ### Project Documentation
 For Software:
