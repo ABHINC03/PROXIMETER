@@ -1,31 +1,32 @@
 <img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
 
 
-# [Project Name] 🎯
+# PROXIMETER 🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: PAKALVELICHAM
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Team Lead: AASHWIN SURESH - SREE CHITRA THIRUNAL COLLEGE OF ENGINEERING
+- Member 2: ABHIN.C - SREE CHITRA THIRUNAL COLLEGE OF ENGINEERING
+
 
 ### Project Description
-[2-3 lines about what your project does]
+OUR PROJECT FINDS FRIENDS LOCATION IN A DIFFERENT WAY:
+LIKE INSTEAD OF FINDING IN LOCATION KMS IT WILL RANDOMLY REPRESENT HOW MANY FAR AWAY IN REAL WORLD OBJECT.FRIENDS IS 12000 BANANA AWAY
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+QUIET CHALLENGING .GIVES GOOD EXCERSISE
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+JUST GIVING THEM ONLY  INFO ABOUT HOW BANANAS AWAY
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
+- PYTHON,HTML,JS
 - [Frameworks used]
 - [Libraries used]
 - [Tools used]
@@ -49,7 +50,7 @@ For Software:
 # Screenshots (Add at least 3)
 ![Screenshot1](Add screenshot 1 here with proper name)
 *Add caption explaining what this shows*
-
+![alt text](image.png)
 ![Screenshot2](Add screenshot 2 here with proper name)
 *Add caption explaining what this shows*
 
